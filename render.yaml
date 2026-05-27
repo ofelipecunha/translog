@@ -1,0 +1,19 @@
+# Blueprint Render — API Java (monorepo: frontend na raiz, backend em /backend)
+services:
+  - type: web
+    name: translog-api
+    runtime: java
+    rootDir: backend
+    branch: main
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/translog-backend-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /api/auth
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_VERSION
+        value: "17"
+      - key: APP_SEED_ENABLED
+        value: "true"
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://translog-orpin.vercel.app,http://localhost:4200
