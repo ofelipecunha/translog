@@ -153,7 +153,7 @@ const apiUrl = 'https://translog-api.onrender.com';
 
 | Sintoma | Solução |
 |---------|---------|
-| `mvn: command not found` + log **Using Node.js** | O serviço está como **Node**, não Java. Em **Settings** do `translog-api`: **Language/Runtime → Java**, **Root Directory → `backend`**, **JAVA_VERSION → 17**. Salve e **Manual Deploy**. |
+| `mvn: command not found` + log **Using Node.js** | O Render criou o serviço como **Node** (há `package.json` na raiz). **Solução recomendada:** **Settings → Runtime → Docker**, **Root Directory → `backend`**, **Dockerfile Path → `Dockerfile`**. Apague **Build Command** e **Start Command** (o Docker cuida disso). **Manual Deploy**. Alternativa: criar novo Web Service com runtime **Java**. |
 | CORS no login | Confira `APP_CORS_ALLOWED_ORIGINS` com a URL exata da Vercel (com `https://`) |
 | 502 / timeout no Render | Plano free “acorda” devagar; espere e tente de novo |
 | Erro de banco / Flyway | Confira JDBC URL, usuário e senha; Postgres precisa estar **Available** |

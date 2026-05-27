@@ -2,11 +2,11 @@
 services:
   - type: web
     name: translog-api
-    runtime: java
+    runtime: docker
     rootDir: backend
     branch: main
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/translog-backend-0.0.1-SNAPSHOT.jar
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api/auth
     envVars:
       - key: SPRING_PROFILES_ACTIVE
