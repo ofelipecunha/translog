@@ -1,5 +1,6 @@
 /** URL da API no Render — atualize após o deploy ou use a variável API_URL no build da Vercel. */
-const apiUrl = 'https://translog.onrender.com';
+/** URL exata do serviço no Render (Settings → URL do Web Service). */
+const apiUrl = 'https://translog-d9q1.onrender.com';
 
 const authLoginPath = '/api/auth/login';
 const authMePath = '/api/auth/me';

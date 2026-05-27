@@ -140,7 +140,7 @@ Content-Type: application/json
 2. Troque `apiUrl` pela URL real do Render (sem barra no final):
 
 ```ts
-const apiUrl = 'https://translog.onrender.com';
+const apiUrl = 'https://translog-d9q1.onrender.com'; // copie a URL em Settings do Web Service
 ```
 
 3. Commit + push → a Vercel faz redeploy automático
