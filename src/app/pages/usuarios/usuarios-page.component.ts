@@ -226,6 +226,10 @@ export class UsuariosPageComponent implements OnInit {
       this.modalErro.set('A senha deve ter no mínimo 6 caracteres.');
       return;
     }
+    if (!PERFIS_USUARIO.some((p) => p.value === this.formPerfil)) {
+      this.modalErro.set('Selecione um perfil válido.');
+      return;
+    }
 
     this.salvando.set(true);
     this.modalErro.set(null);

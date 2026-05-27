@@ -1,5 +1,5 @@
-
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 export interface Option {
   value: string;
@@ -8,28 +8,19 @@ export interface Option {
 
 @Component({
   selector: 'app-select',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './select.component.html',
 })
-export class SelectComponent implements OnInit {
+export class SelectComponent {
   @Input() options: Option[] = [];
-  @Input() placeholder: string = 'Selecione uma opção';
-  @Input() className: string = '';
-  @Input() defaultValue: string = '';
-  @Input() value: string = '';
+  @Input() placeholder = 'Selecione uma opção';
+  @Input() className = '';
+  @Input() value = '';
   @Input() disabled = false;
 
   @Output() valueChange = new EventEmitter<string>();
 
-  ngOnInit() {
-    if (!this.value && this.defaultValue) {
-      this.value = this.defaultValue;
-    }
-  }
-
-  onChange(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    this.value = value;
-    this.valueChange.emit(value);
+  onModelChange(next: string): void {
+    this.valueChange.emit(next);
   }
 }

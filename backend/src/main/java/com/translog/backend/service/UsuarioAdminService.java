@@ -8,6 +8,7 @@ import com.translog.backend.repository.UsuarioRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,8 @@ public class UsuarioAdminService {
 
 	private static final String PERFIL_PADRAO = "USUARIO";
 	private static final String ATIVO_PADRAO = "S";
+	private static final Set<String> PERFIS_VALIDOS =
+			Set.of("ADMIN", "OPERADOR", "MOTORISTA", "CLIENTE", "USUARIO");
 
 	private final UsuarioRepository usuarioRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -112,9 +115,13 @@ public class UsuarioAdminService {
 
 	private static String normalizarPerfil(String perfil) {
 		if (!StringUtils.hasText(perfil)) {
-			return PERFIL_PADRAO;
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o perfil");
 		}
-		return perfil.trim().toUpperCase(Locale.ROOT);
+		String codigo = perfil.trim().toUpperCase(Locale.ROOT);
+		if (!PERFIS_VALIDOS.contains(codigo)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Perfil inválido");
+		}
+		return codigo;
 	}
 
 	private static String normalizarAtivo(String ativo) {
