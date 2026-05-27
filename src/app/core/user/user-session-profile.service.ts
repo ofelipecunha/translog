@@ -69,8 +69,21 @@ export function resolveAvatarUrl(
     return DEFAULT_AVATAR_URL;
   }
   let url: string;
-  if (v.startsWith('http://') || v.startsWith('https://') || v.startsWith('data:')) {
+  if (v.startsWith('data:')) {
     url = v;
+  } else if (v.startsWith('http://') || v.startsWith('https://')) {
+    try {
+      const parsed = new URL(v);
+      const local =
+        parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+      if (local) {
+        url = `${environment.apiUrl}${parsed.pathname}${parsed.search}`;
+      } else {
+        url = v;
+      }
+    } catch {
+      url = v;
+    }
   } else if (v.startsWith('/')) {
     url = `${environment.apiUrl}${v}`;
   } else {

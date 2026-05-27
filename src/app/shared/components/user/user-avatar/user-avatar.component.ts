@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import {
   UserSessionProfileService,
   resolveAvatarUrl,
@@ -12,8 +12,13 @@ import {
       class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full"
       [class]="sizeClass()"
     >
-      @if (hasPhoto()) {
-        <img [src]="photoUrl()" alt="" class="h-full w-full object-cover" />
+      @if (showPhoto()) {
+        <img
+          [src]="photoUrl()"
+          alt=""
+          class="h-full w-full object-cover"
+          (error)="onPhotoError()"
+        />
       } @else {
         <span
           class="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
@@ -44,10 +49,14 @@ export class UserAvatarComponent {
   readonly imagem = input<string | null | undefined>(null);
   readonly sizeClass = input('h-11 w-11');
 
+  private readonly photoLoadFailed = signal(false);
+
   readonly hasPhoto = computed(() => {
     const path = this.imagem() ?? this.sessionProfile.profile()?.imagem;
     return !!path?.trim();
   });
+
+  readonly showPhoto = computed(() => this.hasPhoto() && !this.photoLoadFailed());
 
   readonly photoUrl = computed(() =>
     resolveAvatarUrl(
@@ -55,4 +64,17 @@ export class UserAvatarComponent {
       this.sessionProfile.avatarCacheBust(),
     ),
   );
+
+  constructor() {
+    effect(() => {
+      this.imagem();
+      this.sessionProfile.profile()?.imagem;
+      this.sessionProfile.avatarCacheBust();
+      this.photoLoadFailed.set(false);
+    });
+  }
+
+  onPhotoError(): void {
+    this.photoLoadFailed.set(true);
+  }
 }
