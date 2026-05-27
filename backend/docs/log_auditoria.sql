@@ -21,3 +21,9 @@ CREATE INDEX IF NOT EXISTS idx_log_auditoria_criado_em ON log_auditoria (criado_
 
 -- Consultar logs da última hora (exemplo)
 -- SELECT * FROM log_auditoria WHERE criado_em >= NOW() - INTERVAL '1 hour' ORDER BY criado_em DESC;
+
+-- Se estiver vazio após usar o sistema:
+-- 1) Confira o MESMO banco que o backend usa (Render ≠ localhost).
+-- 2) No Render → Logs, procure "Auditoria de API ativa" ou "Falha ao gravar log de auditoria".
+-- 3) Flyway V8__log_auditoria.sql deve estar aplicada (tabela existe).
+-- 4) API admin: GET /api/auditoria/logs com Bearer token de usuário ADMIN.

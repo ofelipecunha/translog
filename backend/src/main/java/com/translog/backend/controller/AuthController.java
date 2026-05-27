@@ -1,6 +1,6 @@
 package com.translog.backend.controller;
 
-import com.translog.backend.auditoria.AuditoriaInterceptor;
+import com.translog.backend.auditoria.AuditoriaSuporte;
 import com.translog.backend.dto.LoginRequest;
 import com.translog.backend.dto.LoginResponse;
 import com.translog.backend.dto.PerfilUsuarioResponse;
@@ -90,7 +90,7 @@ public class AuthController {
 								"POST",
 								"/api/auth/login",
 								"Login no sistema",
-								AuditoriaInterceptor.extrairIp(request)));
+								AuditoriaSuporte.extrairIp(request)));
 	}
 
 	@GetMapping("/me")

@@ -4,6 +4,7 @@ import com.translog.backend.dto.LogAuditoriaDto;
 import com.translog.backend.entity.LogAuditoria;
 import com.translog.backend.entity.Usuario;
 import com.translog.backend.repository.LogAuditoriaRepository;
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,26 +30,44 @@ public class LogAuditoriaService {
 	@Value("${app.auditoria.retencao-horas:1}")
 	private int retencaoHoras;
 
+	@PostConstruct
+	void logConfiguracao() {
+		if (habilitado) {
+			log.info("Auditoria de API ativa (retenção: {} h)", retencaoHoras);
+		} else {
+			log.warn("Auditoria de API desativada (app.auditoria.habilitado=false)");
+		}
+	}
+
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void registrar(Usuario usuario, String metodo, String rota, String acao, String ip) {
 		if (!habilitado) {
 			return;
 		}
-		LogAuditoria entry = new LogAuditoria();
-		if (usuario != null) {
-			entry.setIdUsuario(usuario.getIdUsuario());
-			entry.setNome(usuario.getNome());
-			entry.setEmail(usuario.getEmail());
-		} else {
-			entry.setNome("—");
-			entry.setEmail("—");
+		try {
+			LogAuditoria entry = new LogAuditoria();
+			if (usuario != null) {
+				entry.setIdUsuario(usuario.getIdUsuario());
+				entry.setNome(usuario.getNome());
+				entry.setEmail(usuario.getEmail());
+			} else {
+				entry.setNome("—");
+				entry.setEmail("—");
+			}
+			entry.setMetodo(truncar(metodo, 10));
+			entry.setRota(truncar(rota, 500));
+			entry.setAcao(truncar(acao, 500));
+			entry.setIp(truncar(ip, 64));
+			entry.setCriadoEm(LocalDateTime.now());
+			logAuditoriaRepository.save(entry);
+		} catch (Exception ex) {
+			log.error(
+					"Falha ao gravar log de auditoria ({} {}): {}",
+					metodo,
+					rota,
+					ex.getMessage(),
+					ex);
 		}
-		entry.setMetodo(truncar(metodo, 10));
-		entry.setRota(truncar(rota, 500));
-		entry.setAcao(truncar(acao, 500));
-		entry.setIp(truncar(ip, 64));
-		entry.setCriadoEm(LocalDateTime.now());
-		logAuditoriaRepository.save(entry);
 	}
 
 	@Transactional(readOnly = true)
