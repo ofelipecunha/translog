@@ -117,7 +117,7 @@
                       </button>
                       <button
                         type="button"
-                        (click)="confirmarExcluir(row)"
+                        (click)="abrirModalExclusao(row)"
                         [disabled]="excluindoId() === row.id"
                         class="inline-flex size-9 items-center justify-center rounded-lg text-error-500 hover:bg-error-50 disabled:opacity-50 dark:hover:bg-error-500/10"
                         title="Excluir"
@@ -306,6 +306,43 @@
       <app-button size="sm" variant="outline" type="button" (btnClick)="fecharModal()">Cancelar</app-button>
       <app-button size="sm" type="button" [disabled]="salvando()" (btnClick)="salvarModal()">
         {{ salvando() ? 'Salvando…' : 'Salvar' }}
+      </app-button>
+    </div>
+  </div>
+</app-modal>
+
+<app-modal [isOpen]="exclusaoModalOpen()" (close)="fecharModalExclusao()" className="max-w-[440px] m-4">
+  <div class="relative w-full rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-8">
+    <div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-error-50 dark:bg-error-500/15">
+      <svg class="size-7 text-error-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M10 11v6M14 11v6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <h4 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Excluir usuário</h4>
+    <p class="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+      Tem certeza que deseja excluir
+      <strong class="text-gray-800 dark:text-white/90">{{ usuarioParaExcluir()?.nome }}</strong>?
+      Esta ação não pode ser desfeita.
+    </p>
+    <div class="mt-6 flex justify-center gap-3">
+      <app-button
+        size="sm"
+        variant="outline"
+        type="button"
+        [disabled]="excluindoId() != null"
+        (btnClick)="fecharModalExclusao()"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        size="sm"
+        type="button"
+        className="!bg-error-500 hover:!bg-error-600"
+        [disabled]="excluindoId() != null"
+        (btnClick)="confirmarExclusao()"
+      >
+        {{ excluindoId() != null ? 'Excluindo…' : 'Excluir' }}
       </app-button>
     </div>
   </div>

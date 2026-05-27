@@ -59,6 +59,9 @@ export class UsuariosPageComponent implements OnInit {
   readonly modalMode = signal<ModalMode>('create');
   readonly editandoId = signal<number | null>(null);
 
+  readonly exclusaoModalOpen = signal(false);
+  readonly usuarioParaExcluir = signal<UsuarioLinha | null>(null);
+
   filterNome = '';
   private readonly allRows = signal<UsuarioLinha[]>([]);
 
@@ -294,8 +297,22 @@ export class UsuariosPageComponent implements OnInit {
       });
   }
 
-  confirmarExcluir(row: UsuarioLinha): void {
-    if (!confirm(`Excluir o usuário "${row.nome}"? Esta ação não pode ser desfeita.`)) {
+  abrirModalExclusao(row: UsuarioLinha): void {
+    this.usuarioParaExcluir.set(row);
+    this.exclusaoModalOpen.set(true);
+  }
+
+  fecharModalExclusao(): void {
+    if (this.excluindoId() != null) {
+      return;
+    }
+    this.exclusaoModalOpen.set(false);
+    this.usuarioParaExcluir.set(null);
+  }
+
+  confirmarExclusao(): void {
+    const row = this.usuarioParaExcluir();
+    if (!row) {
       return;
     }
     this.excluindoId.set(row.id);
@@ -305,6 +322,8 @@ export class UsuariosPageComponent implements OnInit {
       .subscribe({
         next: () => {
           this.alerts.success('Excluído', `O usuário "${row.nome}" foi excluído.`);
+          this.exclusaoModalOpen.set(false);
+          this.usuarioParaExcluir.set(null);
           this.carregarLista(this.filterNome);
         },
         error: (err: unknown) => {
