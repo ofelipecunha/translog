@@ -1,0 +1,48 @@
+<app-modal [isOpen]="aberto" (close)="fechar()" className="max-w-6xl m-4 w-full">
+  <div class="relative w-full max-w-6xl overflow-y-auto rounded-3xl bg-white p-5 dark:bg-gray-900 lg:p-8">
+    <div class="mb-4 pr-10 sm:pr-12">
+      <h4 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+        Lançamentos do dia {{ dataLabel }}
+      </h4>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Extrato Pierre · {{ transacoes.length }} lançamento(s) · total {{ totalFormatado }}
+      </p>
+    </div>
+
+    @if (transacoes.length === 0) {
+      <p class="text-sm text-gray-600 dark:text-gray-400">Nenhum lançamento neste dia.</p>
+    } @else {
+      <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+        <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-white/[0.03]">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Descrição</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Categoria</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Conta</th>
+              <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Valor</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            @for (txn of transacoes; track txn.id) {
+              <tr class="dark:hover:bg-white/[0.02]">
+                <td class="min-w-[14rem] max-w-md px-4 py-2.5 text-gray-800 dark:text-white/90">
+                  {{ descricao(txn) }}
+                </td>
+                <td class="min-w-[10rem] px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ categoria(txn) }}</td>
+                <td class="min-w-[8rem] px-4 py-2.5 text-gray-600 dark:text-gray-400">
+                  {{ txn.account_marketing_name || txn.account_name || '—' }}
+                </td>
+                <td
+                  class="whitespace-nowrap px-4 py-2.5 text-right font-medium"
+                  [ngClass]="classeValor(txn)"
+                >
+                  {{ valor(txn) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</app-modal>

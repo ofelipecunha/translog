@@ -1,0 +1,131 @@
+<div>
+  <app-page-breadcrumb
+    [pageTitle]="pageTitle()"
+    [trail]="breadcrumbTrail()"
+    [showHeading]="false"
+  />
+
+  @if (erroMsg()) {
+    <p class="mb-4 text-sm text-error-500">{{ erroMsg() }}</p>
+  }
+  @if (erroRefs()) {
+    <p class="mb-4 text-sm text-error-500">{{ erroRefs() }}</p>
+  }
+
+  @if (carregando()) {
+    <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Carregando…</p>
+  }
+
+  <div class="mb-6">
+    <app-form-cadastro-actions
+      [cancelDisabled]="salvando()"
+      [salvarDisabled]="salvando() || carregando() || !podeSalvar"
+      [salvando]="salvando()"
+      (cancelar)="cancelar()"
+      (salvar)="salvar()"
+    />
+  </div>
+
+  <div
+    class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6"
+  >
+    @if (!refsCarregados()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Carregando referências…</p>
+    } @else {
+      <div class="grid max-w-xl grid-cols-1 gap-5">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Descrição
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="descricao"
+            maxlength="255"
+            [disabled]="carregando() || salvando()"
+            placeholder="Opcional"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Valor (R$) <span class="text-error-500">*</span>
+          </label>
+          <input
+            type="number"
+            [(ngModel)]="valor"
+            min="0.01"
+            step="0.01"
+            [disabled]="carregando() || salvando()"
+            placeholder="0,00"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Data <span class="text-error-500">*</span>
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="dataLancamento"
+            [disabled]="carregando() || salvando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Categoria <span class="text-error-500">*</span>
+          </label>
+          <select
+            [(ngModel)]="categoriaSel"
+            [disabled]="carregando() || salvando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          >
+            <option [ngValue]="null">Selecione</option>
+            @for (c of categoriasOpcoes; track c.id) {
+              <option [ngValue]="c.id">{{ c.nome }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Tipo <span class="text-error-500">*</span>
+          </label>
+          <select
+            [(ngModel)]="tipoSel"
+            [disabled]="carregando() || salvando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          >
+            <option value="">Selecione Receita ou Despesa</option>
+            @for (op of tipoOpcoes; track op.valor) {
+              <option [value]="op.valor">{{ op.rotulo }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Forma de pagamento
+          </label>
+          <select
+            [(ngModel)]="formaSel"
+            [disabled]="carregando() || salvando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          >
+            <option [ngValue]="null">Nenhuma</option>
+            @for (f of formasOpcoes; track f.id) {
+              <option [ngValue]="f.id">{{ f.nome }}</option>
+            }
+          </select>
+        </div>
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
+          <input
+            type="checkbox"
+            [(ngModel)]="pago"
+            [disabled]="carregando() || salvando()"
+            class="size-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 disabled:opacity-60"
+          />
+          Pago
+        </label>
+      </div>
+    }
+  </div>
+</div>

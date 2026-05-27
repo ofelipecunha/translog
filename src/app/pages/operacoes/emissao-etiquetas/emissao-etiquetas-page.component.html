@@ -1,0 +1,191 @@
+<div>
+  <app-page-breadcrumb pageTitle="Emissão de Etiquetas" [trail]="breadcrumbTrail" [showHeading]="false" />
+
+  <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+    <h2 class="text-lg font-semibold text-brand-500 dark:text-brand-400">Emissão de Etiquetas</h2>
+
+    @if (formErro(); as msgErro) {
+      <p class="mt-3 text-sm text-error-500" role="alert">{{ msgErro }}</p>
+    } @else if (empresasErro(); as msgEmpresas) {
+      <p class="mt-3 text-sm text-error-500" role="alert">{{ msgEmpresas }}</p>
+    }
+
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-12 xl:gap-8">
+      <div class="xl:col-span-8">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Loja Origem</label>
+            <select
+              [ngModel]="lojaOrigemId"
+              (ngModelChange)="onLojaOrigemChange($event)"
+              [disabled]="carregandoEmpresas() || empresas().length === 0"
+              class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+            >
+              <option value="" disabled>Selecione a empresa de origem</option>
+              @for (loja of lojasOrigem; track loja.id) {
+                <option [value]="loja.id">{{ loja.nome }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Loja Destino</label>
+            <select
+              [ngModel]="lojaDestinoId"
+              (ngModelChange)="onLojaDestinoChange($event)"
+              [disabled]="carregandoEmpresas() || empresas().length === 0"
+              class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+            >
+              <option value="" disabled>Selecione a empresa de destino</option>
+              @for (loja of lojasDestino; track loja.id) {
+                <option [value]="loja.id">{{ loja.nome }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Número do Pedido</label>
+            <input
+              type="text"
+              [(ngModel)]="numeroPedido"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="Ex.: 4587"
+              class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+            />
+          </div>
+          <div>
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Data do Pedido</label>
+            <input
+              type="date"
+              [(ngModel)]="dataPedido"
+              class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+            />
+          </div>
+          <div class="sm:col-span-2 sm:max-w-xs">
+            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Quantidade de Volumes</label>
+            <input
+              type="number"
+              min="1"
+              max="99"
+              [(ngModel)]="quantidadeVolumes"
+              spellcheck="false"
+              placeholder="Ex.: 5"
+              class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+            />
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <button
+            type="button"
+            (click)="gerarEtiquetas()"
+            [disabled]="carregandoEmpresas() || empresas().length < 2"
+            class="inline-flex h-12 w-full items-center justify-center rounded-lg bg-brand-500 px-6 text-sm font-semibold text-white shadow-theme-xs transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[280px]"
+          >
+            Gerar Etiquetas
+          </button>
+          <button
+            type="button"
+            (click)="gravarEtiqueta()"
+            [disabled]="carregandoEmpresas() || empresas().length < 2 || gravando()"
+            class="inline-flex h-12 w-full items-center justify-center rounded-lg border border-brand-500 bg-white px-6 text-sm font-semibold text-brand-500 shadow-theme-xs transition-colors hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-brand-400 dark:bg-transparent dark:text-brand-400 dark:hover:bg-brand-500/10 sm:w-auto sm:min-w-[280px]"
+          >
+            {{ gravando() ? 'Gravando...' : 'Gravar Etiqueta' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="xl:col-span-4">
+        <div class="h-full rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-900/40">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90">Resumo</h3>
+          <ul class="mt-4 space-y-2.5 text-sm text-gray-600 dark:text-gray-400">
+            <li><span class="font-medium text-gray-700 dark:text-gray-300">Pedido:</span> {{ numeroPedido || '—' }}</li>
+            <li><span class="font-medium text-gray-700 dark:text-gray-300">Origem:</span> {{ lojaOrigemNome }}</li>
+            <li><span class="font-medium text-gray-700 dark:text-gray-300">Destino:</span> {{ lojaDestinoNome }}</li>
+            <li><span class="font-medium text-gray-700 dark:text-gray-300">Volumes:</span> {{ quantidadeVolumes || '—' }}</li>
+            <li><span class="font-medium text-gray-700 dark:text-gray-300">Data:</span> {{ dataPedidoExibicao }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (previewVisivel()) {
+    <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Preview da Etiqueta</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-500 dark:text-gray-400">
+            Volume {{ volumeAtualFormatado() }} de {{ totalVolumesFormatado }}
+          </span>
+          <button
+            type="button"
+            (click)="volumeAnterior()"
+            [disabled]="!podeNavegarAnterior"
+            class="inline-flex size-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.05]"
+            aria-label="Volume anterior"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            (click)="volumeProximo()"
+            [disabled]="!podeNavegarProximo"
+            class="inline-flex size-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.05]"
+            aria-label="Próximo volume"
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-center">
+        <div
+          #etiquetaImpressao
+          class="etiqueta-impressao w-full max-w-md rounded-xl border-2 border-gray-200 bg-white p-4 shadow-theme-sm dark:border-gray-700 dark:bg-gray-900/30 sm:max-w-lg sm:p-5"
+        >
+          <p class="text-center text-base font-bold tracking-wide text-gray-900 dark:text-white/90 sm:text-lg">
+            {{ codigoEtiqueta }}
+          </p>
+
+          <div class="mt-4 flex w-full justify-center">
+            <app-etiqueta-barcode [value]="codigoEtiqueta" class="w-full" />
+          </div>
+
+          <div class="rodape mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 dark:border-gray-800 sm:flex-row sm:items-end sm:justify-between">
+            <ul class="space-y-0.5 text-xs text-gray-600 dark:text-gray-400">
+              <li><span class="font-medium text-gray-800 dark:text-white/80">Pedido:</span> {{ numeroPedido }}</li>
+              <li><span class="font-medium text-gray-800 dark:text-white/80">Origem:</span> {{ lojaOrigemNome }}</li>
+              <li><span class="font-medium text-gray-800 dark:text-white/80">Destino:</span> {{ lojaDestinoNome }}</li>
+            </ul>
+            <div
+              class="volume-badge inline-flex min-w-[3.5rem] items-center justify-center self-start rounded-md border-2 border-gray-800 px-3 py-1.5 text-sm font-bold text-gray-900 dark:border-white/80 dark:text-white/90 sm:self-end"
+            >
+              {{ volumeAtualFormatado() }}/{{ totalVolumesFormatado }}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="imprimirEtiqueta()"
+          class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path
+              d="M5.833 6.667V4.167A1.667 1.667 0 0 1 7.5 2.5h5a1.667 1.667 0 0 1 1.667 1.667v2.5M5 6.667h10a1.667 1.667 0 0 1 1.667 1.666v5A1.667 1.667 0 0 1 15 15H5a1.667 1.667 0 0 1-1.667-1.667v-5A1.667 1.667 0 0 1 5 6.667Zm2.5 8.333h5"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Imprimir
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,382 @@
+<div
+  class="grid grid-cols-1"
+  [ngClass]="layoutUmCard ? 'max-w-sm gap-3 md:gap-4' : 'gap-4 sm:grid-cols-2 md:gap-6'"
+>
+  @if (exibirCardNubank()) {
+  <div
+    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    [ngClass]="layoutUmCard ? 'p-4 md:p-5' : 'p-5 md:p-6'"
+  >
+    <div class="flex items-start justify-between gap-2">
+      <img
+        src="/images/icons/nubank.svg"
+        alt="Nubank"
+        class="h-10 w-10 shrink-0 object-contain"
+        width="40"
+        height="40"
+      />
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-theme-xs transition-colors hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-white/90"
+          [attr.aria-label]="saldoOculto() ? 'Mostrar saldo' : 'Ocultar saldo'"
+          [attr.title]="saldoOculto() ? 'Mostrar saldo' : 'Ocultar saldo'"
+          (click)="alternarVisibilidadeSaldo($event)"
+        >
+          @if (saldoOculto()) {
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395m4.29-1.29 1.414 1.414M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          } @else {
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          }
+        </button>
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-theme-xs transition-colors hover:bg-gray-50 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-white/90"
+          [disabled]="pierreCarregando() || !pierreService.hasApiKey()"
+          aria-label="Atualizar saldo"
+          title="Atualizar saldo"
+          (click)="atualizarSaldo($event)"
+        >
+          <svg
+            class="h-5 w-5"
+            [class.animate-spin]="pierreCarregando()"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 12a8 8 0 0 1 14.32-4.906M20 8V4m0 0h-4m4 0-3.978 3.978M20 12a8 8 0 0 1-14.32 4.906M4 16v4m0 0h4m-4 0 3.978-3.978"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div
+      role="button"
+      tabindex="0"
+      class="transition-colors"
+      [class.mt-4]="exibirCartaoVirtual"
+      [class.mt-5]="!exibirCartaoVirtual"
+      [class.cursor-pointer]="pierreService.hasApiKey() && !pierreCarregando()"
+      (click)="pierreService.hasApiKey() && abrirHistorico('nubank')"
+      (keydown.enter)="pierreService.hasApiKey() && abrirHistorico('nubank')"
+      (keydown.space)="$event.preventDefault(); pierreService.hasApiKey() && abrirHistorico('nubank')"
+    >
+      @if (exibirCartaoVirtual) {
+      <app-virtual-credit-card
+        class="block w-full"
+        variant="nubank"
+        balanceLabel="Saldo atual (Nubank)"
+        [balanceValue]="pierreCarregando() && pierreService.hasApiKey() ? '…' : exibirSaldo(saldoNubankFormatado())"
+        [masked]="saldoOculto()"
+      />
+
+      <div class="mt-3 flex items-center justify-between gap-3">
+        @if (pierreErro() && pierreService.hasApiKey()) {
+          <p class="text-xs text-error-500">{{ pierreErro() }}</p>
+        } @else {
+          <p class="text-xs text-gray-500 dark:text-gray-400">Clique no cartão para ver histórico (30 dias)</p>
+        }
+        <app-badge color="success">
+          <span [innerHTML]="icons.arrowUpIcon | safeHtml"></span>
+          Pierre
+        </app-badge>
+      </div>
+      } @else {
+        <div class="flex items-end justify-between">
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Saldo total (Nubank)</span>
+            <h4 class="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              @if (pierreCarregando() && pierreService.hasApiKey()) {
+                …
+              } @else {
+                {{ exibirSaldo(saldoNubankFormatado()) }}
+              }
+            </h4>
+            @if (pierreErro() && pierreService.hasApiKey()) {
+              <p class="mt-1 text-xs text-error-500">{{ pierreErro() }}</p>
+            }
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Clique para ver histórico (30 dias)</p>
+          </div>
+          <app-badge color="success">
+            <span [innerHTML]="icons.arrowUpIcon | safeHtml"></span>
+            Pierre
+          </app-badge>
+        </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (exibirCardBb()) {
+  <div
+    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    [ngClass]="layoutUmCard ? 'p-4 md:p-5' : 'p-5 md:p-6'"
+  >
+    <div class="flex items-start justify-between gap-2">
+      <img
+        src="/images/icons/bancobrasil.svg"
+        alt="Banco do Brasil"
+        class="h-10 w-10 shrink-0 object-contain"
+        width="40"
+        height="40"
+      />
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-theme-xs transition-colors hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-white/90"
+          [attr.aria-label]="saldoOculto() ? 'Mostrar saldo' : 'Ocultar saldo'"
+          [attr.title]="saldoOculto() ? 'Mostrar saldo' : 'Ocultar saldo'"
+          (click)="alternarVisibilidadeSaldo($event)"
+        >
+          @if (saldoOculto()) {
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395m4.29-1.29 1.414 1.414M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          } @else {
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path
+                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          }
+        </button>
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-theme-xs transition-colors hover:bg-gray-50 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-white/90"
+          [disabled]="pierreCarregando() || !pierreService.hasApiKey()"
+          aria-label="Atualizar saldo"
+          title="Atualizar saldo"
+          (click)="atualizarSaldo($event)"
+        >
+          <svg
+            class="h-5 w-5"
+            [class.animate-spin]="pierreCarregando()"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 12a8 8 0 0 1 14.32-4.906M20 8V4m0 0h-4m4 0-3.978 3.978M20 12a8 8 0 0 1-14.32 4.906M4 16v4m0 0h4m-4 0 3.978-3.978"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div
+      role="button"
+      tabindex="0"
+      class="transition-colors"
+      [class.mt-4]="exibirCartaoVirtual"
+      [class.mt-5]="!exibirCartaoVirtual"
+      [class.cursor-pointer]="pierreService.hasApiKey() && !pierreCarregando()"
+      (click)="pierreService.hasApiKey() && abrirHistorico('bb')"
+      (keydown.enter)="pierreService.hasApiKey() && abrirHistorico('bb')"
+      (keydown.space)="$event.preventDefault(); pierreService.hasApiKey() && abrirHistorico('bb')"
+    >
+      @if (exibirCartaoVirtual) {
+      <app-virtual-credit-card
+        class="block w-full"
+        variant="bb"
+        balanceLabel="Saldo atual (Banco do Brasil)"
+        [balanceValue]="exibirSaldo(saldoBbFormatado())"
+        [masked]="saldoOculto()"
+        cardNumber="6012 8844 1200 4589"
+        expiry="12/28"
+      />
+
+      <div class="mt-3 flex items-center justify-between gap-3">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Clique no cartão para ver histórico (30 dias)</p>
+        <app-badge color="success">
+          <span [innerHTML]="icons.arrowUpIcon | safeHtml"></span>
+          Pierre
+        </app-badge>
+      </div>
+      } @else {
+        <div class="flex items-end justify-between">
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Saldo total (Banco do Brasil)</span>
+            <h4 class="text-title-sm mt-2 font-bold text-gray-800 dark:text-white/90">
+              {{ exibirSaldo(saldoBbFormatado()) }}
+            </h4>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Clique para ver histórico (30 dias)</p>
+          </div>
+          <app-badge color="success">
+            <span [innerHTML]="icons.arrowUpIcon | safeHtml"></span>
+            Pierre
+          </app-badge>
+        </div>
+      }
+    </div>
+  </div>
+  }
+</div>
+
+<app-modal [isOpen]="historicoAberto()" (close)="fecharHistorico()" className="max-w-4xl m-4 w-full">
+  <div class="relative w-full max-w-4xl overflow-y-auto rounded-3xl bg-white p-5 dark:bg-gray-900 lg:p-8">
+    <div class="mb-4 flex items-center gap-3 pr-10 sm:pr-12">
+      @if (historicoBanco() === 'nubank') {
+        <img
+          src="/images/icons/nubank.svg"
+          alt="Nubank"
+          class="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
+          width="44"
+          height="44"
+        />
+      } @else {
+        <img
+          src="/images/icons/bancobrasil.svg"
+          alt="Banco do Brasil"
+          class="h-10 w-10 shrink-0 object-contain sm:h-11 sm:w-11"
+          width="44"
+          height="44"
+        />
+      }
+      <div class="min-w-0">
+        <h4 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+          @if (historicoBanco() === 'nubank') {
+            Extrato Nubank (Últimos 30 dias)
+          } @else {
+            Extrato Banco do Brasil (Últimos 30 dias)
+          }
+        </h4>
+      </div>
+    </div>
+
+    @if (historicoCarregando()) {
+      <p class="text-sm text-gray-600 dark:text-gray-400">A carregar transações…</p>
+    } @else if (historicoErro()) {
+      <p class="text-sm text-error-500">{{ historicoErro() }}</p>
+    } @else if (historicoBase().length === 0) {
+      <p class="text-sm text-gray-600 dark:text-gray-400">Nenhuma transação no período.</p>
+    } @else {
+      <div class="mb-4 flex flex-wrap items-end gap-3">
+        <div class="min-w-[200px] flex-1">
+          <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Descrição</label>
+          <input
+            type="text"
+            class="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+            placeholder="Filtrar…"
+            [value]="filtroDescricao()"
+            (input)="aplicarFiltroDescricao($any($event.target).value)"
+          />
+        </div>
+        <button
+          type="button"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]"
+          (click)="limparFiltroHistorico()"
+        >
+          Limpar filtro
+        </button>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+        <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-white/[0.03]">
+            <tr>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Descrição</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Categoria</th>
+              <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Data</th>
+              <th class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300">Valor</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            @for (txn of transacoesPagina(); track txn.id) {
+              <tr class="dark:hover:bg-white/[0.02]">
+                <td class="max-w-[220px] truncate px-4 py-2.5 text-gray-800 dark:text-white/90">{{ descricaoModal(txn) }}</td>
+                <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ categoriaTransacao(txn) }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-gray-600 dark:text-gray-400">{{ formatarDataCurta(txn.date) }}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 text-right font-medium" [ngClass]="classeMovimentacao(txn.amount)">
+                  {{ formatarValorMovimentacao(txn.amount) }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-4 py-6 text-center text-gray-500">Nenhum lançamento com o filtro atual.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">
+        <span>
+          @if (historicoFiltrado().length === 0) {
+            Sem movimentos.
+          } @else {
+            {{ intervaloExibicao().de }}–{{ intervaloExibicao().ate }} de {{ historicoFiltrado().length }}
+          }
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-gray-700"
+            [disabled]="modalPagina() <= 1"
+            (click)="paginaAnterior()"
+          >
+            Anterior
+          </button>
+          <span class="text-xs">Página {{ modalPagina() }} / {{ totalPaginasModal() }}</span>
+          <button
+            type="button"
+            class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm disabled:opacity-40 dark:border-gray-700"
+            [disabled]="modalPagina() >= totalPaginasModal()"
+            (click)="paginaProxima()"
+          >
+            Seguinte
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</app-modal>

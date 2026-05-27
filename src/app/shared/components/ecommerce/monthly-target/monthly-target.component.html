@@ -1,0 +1,129 @@
+<div class="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
+  <div class="px-5 pt-5 bg-white shadow-default rounded-2xl pb-14 dark:bg-gray-900 sm:px-6 sm:pt-6 sm:pb-16">
+    <div class="mt-2 min-h-[18rem] sm:min-h-[19.5rem]">
+      <p
+        class="mb-3 text-center text-sm font-semibold text-gray-800 dark:text-white/90"
+      >
+        {{ monthYearLabel }}
+      </p>
+      <div
+        class="grid grid-cols-7 gap-y-1.5 gap-x-0.5 text-center text-theme-xs text-gray-500 dark:text-gray-400 sm:text-xs"
+      >
+        @for (label of weekdayLabels; track label) {
+          <span class="py-1 font-medium">{{ label }}</span>
+        }
+      </div>
+      @for (week of calendarWeeks; track $index) {
+        <div
+          class="grid grid-cols-7 items-stretch gap-y-1.5 gap-x-0.5 text-center text-theme-sm text-gray-700 dark:text-gray-300 sm:text-sm"
+        >
+          @for (cell of week; track $index) {
+            @if (cell.day !== null) {
+              <button
+                type="button"
+                (click)="onDiaClick(cell, $event)"
+                class="cal-dia-btn relative flex h-10 w-full min-w-0 cursor-pointer flex-col items-center justify-start rounded-lg pt-1.5 transition hover:bg-gray-100 dark:hover:bg-white/5 sm:h-11"
+                [class.cal-dia--hoje]="cell.isToday"
+                [class.font-semibold]="true"
+                [class.bg-brand-500]="cell.isToday"
+                [class.text-white]="cell.isToday"
+                [class.shadow-sm]="cell.isToday"
+                [class.hover:bg-brand-600]="cell.isToday"
+                [attr.aria-label]="
+                  'Dia ' +
+                  cell.day +
+                  (cell.temLancamentoNubank ? ', lançamentos Nubank' : '') +
+                  (cell.temLancamentoBb ? ', lançamentos Banco do Brasil' : '') +
+                  (cell.temEmprestimo ? ', desconto empréstimo' : '') +
+                  (cell.eventCount ? ', ' + cell.eventCount + ' evento(s)' : '')
+                "
+              >
+                <span class="leading-none">{{ cell.day }}</span>
+
+                @if (mostrarMarcadorEvento(cell)) {
+                  <span
+                    class="cal-dia-evento"
+                    [ngClass]="classeEventoDot(cell)"
+                    aria-hidden="true"
+                    title="Evento no calendário"
+                  ></span>
+                }
+
+                @if (
+                  mostrarTarjaNubank(cell) ||
+                  mostrarTarjaBb(cell) ||
+                  mostrarEmprestimo(cell)
+                ) {
+                  <span class="cal-dia-marcadores" aria-hidden="true">
+                    @if (mostrarTarjaNubank(cell) || mostrarTarjaBb(cell)) {
+                      <span class="cal-dia-tarjas">
+                        @if (mostrarTarjaNubank(cell)) {
+                          <span class="cal-dia-tarja cal-dia-tarja--nubank" title="Lançamentos Nubank"></span>
+                        }
+                        @if (mostrarTarjaBb(cell)) {
+                          <span class="cal-dia-tarja cal-dia-tarja--bb" title="Lançamentos Banco do Brasil"></span>
+                        }
+                      </span>
+                    }
+                    @if (mostrarEmprestimo(cell)) {
+                      <span class="cal-dia-emprestimo" title="Desconto ou previsão de empréstimo (EMPRESTIMO)">E</span>
+                    }
+                  </span>
+                }
+              </button>
+            } @else {
+              <span
+                class="flex h-10 items-center justify-center rounded-lg text-gray-400 dark:text-gray-600 sm:h-11"
+              ></span>
+            }
+          }
+        </div>
+      }
+    </div>
+    
+  </div>
+
+  <div
+    class="flex flex-wrap items-center justify-center gap-2 border-t border-gray-200 px-4 py-3.5 dark:border-gray-800 sm:gap-2.5 sm:px-6 sm:py-4"
+    role="group"
+    aria-label="Filtros das tarjas do calendário"
+  >
+    <button
+      type="button"
+      class="cal-filtro-pill"
+      [class.cal-filtro-pill--ativo]="filtroEventos"
+      [attr.aria-pressed]="filtroEventos"
+      (click)="filtroEventos = !filtroEventos"
+    >
+      <span class="cal-filtro-pill-icone cal-filtro-pill-icone--evento" aria-hidden="true"></span>
+      EVENTOS
+    </button>
+    <button
+      type="button"
+      class="cal-filtro-pill"
+      [class.cal-filtro-pill--ativo]="filtroBb"
+      [attr.aria-pressed]="filtroBb"
+      (click)="filtroBb = !filtroBb"
+    >
+      <span class="cal-filtro-pill-icone cal-filtro-pill-icone--bb" aria-hidden="true"></span>
+      BANCO DO BRASIL
+    </button>
+    <button
+      type="button"
+      class="cal-filtro-pill"
+      [class.cal-filtro-pill--ativo]="filtroNubank"
+      [attr.aria-pressed]="filtroNubank"
+      (click)="filtroNubank = !filtroNubank"
+    >
+      <span class="cal-filtro-pill-icone cal-filtro-pill-icone--nubank" aria-hidden="true"></span>
+      NUBANK
+    </button>
+  </div>
+
+  <app-calendario-evento-modals
+    #eventoModals
+    (eventosAlterados)="onEventosAlterados($event)"
+  />
+
+  <app-calendario-extrato-dia-modal #extratoDiaModal />
+</div>

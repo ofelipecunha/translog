@@ -1,0 +1,161 @@
+<app-modal
+  [isOpen]="isOpen"
+  (close)="closeModal()"
+  className="max-w-[520px] p-6 lg:p-8"
+>
+  <div class="flex flex-col overflow-y-auto px-2 custom-scrollbar">
+    <div>
+      <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
+        {{ isEdicao ? 'Editar evento' : 'Novo evento' }}
+      </h5>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Anotação no calendário (tipo NOTACAO — exibida em azul no dia selecionado).
+      </p>
+    </div>
+
+    <div class="mt-8 space-y-5">
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          Descrição <span class="text-error-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="descricao"
+          maxlength="255"
+          [disabled]="salvando || excluindo"
+          placeholder="Ex.: Reunião, lembrete…"
+          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          Data do evento <span class="text-error-500">*</span>
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="dataEvento"
+          [disabled]="salvando || excluindo"
+          class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+          Tipo
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="tipo"
+          readonly
+          class="dark:bg-dark-900 h-11 w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-400"
+        />
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Anotações usam tarja azul no calendário.
+        </p>
+      </div>
+
+      <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
+        <input
+          type="checkbox"
+          [(ngModel)]="concluido"
+          [disabled]="salvando || excluindo"
+          class="size-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20 disabled:opacity-60"
+        />
+        Concluído
+      </label>
+    </div>
+
+    <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
+      @if (isEdicao) {
+        <button
+          type="button"
+          (click)="excluir()"
+          [disabled]="salvando || excluindo"
+          class="flex w-full justify-center rounded-lg border border-error-300 bg-white px-4 py-2.5 text-sm font-medium text-error-600 hover:bg-error-50 disabled:opacity-50 dark:border-error-500/40 dark:bg-gray-800 dark:text-error-400 sm:order-first sm:mr-auto sm:w-auto"
+        >
+          {{ excluindo ? 'Excluindo…' : 'Excluir' }}
+        </button>
+      }
+      <button
+        type="button"
+        (click)="closeModal()"
+        [disabled]="salvando || excluindo"
+        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 sm:w-auto"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        (click)="salvar()"
+        [disabled]="!podeSalvar || excluindo"
+        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+      >
+        {{ salvando ? 'Salvando…' : isEdicao ? 'Atualizar' : 'Salvar' }}
+      </button>
+    </div>
+  </div>
+</app-modal>
+
+<app-modal
+  [isOpen]="isListaDiaOpen"
+  (close)="fecharModalListaDia()"
+  className="max-w-[520px] p-6 lg:p-8"
+>
+  <div class="flex flex-col px-2">
+    <div>
+      <h5 class="mb-2 font-semibold text-gray-800 text-theme-xl dark:text-white/90 lg:text-2xl">
+        Anotações do dia
+      </h5>
+      <p class="text-sm capitalize text-gray-500 dark:text-gray-400">
+        {{ dataDiaListaLabel }}
+      </p>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {{ eventosDiaLista.length }} eventos nesta data
+      </p>
+    </div>
+
+    <ul class="mt-6 max-h-[min(24rem,50vh)] space-y-2 overflow-y-auto custom-scrollbar">
+      @for (evento of eventosDiaLista; track evento.id) {
+        <li>
+          <button
+            type="button"
+            (click)="editarEventoDaLista(evento)"
+            class="flex w-full items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left transition hover:border-brand-300 hover:bg-brand-50 dark:border-gray-700 dark:bg-white/[0.03] dark:hover:border-brand-800 dark:hover:bg-brand-500/10"
+          >
+            <span class="h-5 w-1 shrink-0 rounded-full bg-brand-500" aria-hidden="true"></span>
+            <span
+              class="flex-1 text-sm text-gray-800 dark:text-white/90"
+              [class.line-through]="evento.concluido"
+              [class.opacity-70]="evento.concluido"
+            >
+              {{ evento.descricao }}
+            </span>
+            @if (evento.concluido) {
+              <span class="shrink-0 text-xs font-medium text-success-600 dark:text-success-400">
+                Concluído
+              </span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+      <button
+        type="button"
+        (click)="fecharModalListaDia()"
+        class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 sm:w-auto"
+      >
+        Fechar
+      </button>
+      <button
+        type="button"
+        (click)="adicionarEventoNoDiaLista()"
+        class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+      >
+        Adicionar evento
+      </button>
+    </div>
+  </div>
+</app-modal>

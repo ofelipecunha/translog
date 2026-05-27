@@ -1,0 +1,50 @@
+﻿<div
+  class="virtual-card virtual-card--{{ variant }}"
+  role="img"
+  [attr.aria-label]="'Cartão de crédito ' + logoAlt + ', ' + balanceExibido"
+>
+  <div class="relative z-[1] flex h-full flex-col justify-between gap-3">
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex min-w-0 items-center gap-2">
+        <svg
+          class="virtual-card__contactless shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            d="M5.5 8.5c2.2-2.5 5.3-4 8.5-4M5.5 12c2.2-2.5 5.3-4 8.5-4M5.5 15.5c2.2-2.5 5.3-4 8.5-4"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span class="virtual-card__title">Cartão de crédito</span>
+      </div>
+      <img
+        class="virtual-card__logo shrink-0"
+        [src]="logoSrc"
+        [alt]="logoAlt"
+        width="88"
+        height="24"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="flex flex-1 items-center justify-between gap-3">
+      <p class="virtual-card__number">{{ balanceExibido }}</p>
+      <div class="virtual-card__chip shrink-0" aria-hidden="true">
+        <div class="virtual-card__chip-lines">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-end justify-between gap-2">
+      <span class="virtual-card__holder">{{ titularExibido }}</span>
+      <span class="virtual-card__expiry">{{ expiry }}</span>
+    </div>
+  </div>
+</div>

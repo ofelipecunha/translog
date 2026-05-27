@@ -1,0 +1,295 @@
+<div>
+  <app-page-breadcrumb
+    pageTitle="Lançamentos"
+    [trail]="breadcrumbTrail"
+    [showHeading]="false"
+  />
+
+  <div class="flex flex-col gap-8">
+    @if (listaErro()) {
+      <p class="text-sm text-error-500">{{ listaErro() }}</p>
+    }
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Receitas (filtro)</p>
+        <p class="text-lg font-semibold text-success-600 dark:text-success-400">
+          {{ formatarMoeda(resumo().receitas) }}
+        </p>
+      </div>
+      <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Despesas (filtro)</p>
+        <p class="text-lg font-semibold text-error-600 dark:text-error-400">
+          {{ formatarMoeda(resumo().despesas) }}
+        </p>
+      </div>
+      <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Saldo (filtro)</p>
+        <p
+          class="text-lg font-semibold"
+          [class.text-success-600]="resumo().saldo >= 0"
+          [class.dark:text-success-400]="resumo().saldo >= 0"
+          [class.text-error-600]="resumo().saldo < 0"
+          [class.dark:text-error-400]="resumo().saldo < 0"
+        >
+          {{ formatarMoeda(resumo().saldo) }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] sm:p-6"
+    >
+      <div class="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+        <div class="min-w-[180px] flex-1">
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Descrição
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="filterDescricao"
+            (ngModelChange)="aplicarFiltrosLocais()"
+            placeholder="Buscar descrição ou categoria"
+            [disabled]="listaCarregando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <div class="min-w-[160px] flex-1">
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Categoria
+          </label>
+          <select
+            [(ngModel)]="filterCategoriaId"
+            (ngModelChange)="aplicarFiltrosLocais()"
+            [disabled]="listaCarregando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          >
+            <option [ngValue]="null">Todas</option>
+            @for (c of categoriasFiltro; track c.id) {
+              <option [ngValue]="c.id">{{ c.nome }}</option>
+            }
+          </select>
+        </div>
+        <div class="min-w-[140px]">
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Data início
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="filterDataInicio"
+            [disabled]="listaCarregando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <div class="min-w-[140px]">
+          <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            Data fim
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="filterDataFim"
+            [disabled]="listaCarregando()"
+            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-white/90"
+          />
+        </div>
+        <label class="inline-flex h-11 shrink-0 cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-400">
+          <input
+            type="checkbox"
+            [(ngModel)]="filterSomenteStreaming"
+            (ngModelChange)="aplicarFiltrosLocais()"
+            [disabled]="listaCarregando()"
+            class="size-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/20"
+          />
+          Só streaming
+        </label>
+        <div class="flex shrink-0 gap-2">
+          <button
+            type="button"
+            (click)="pesquisar()"
+            [disabled]="listaCarregando()"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-success-500 text-white shadow-theme-xs hover:bg-success-600 disabled:cursor-not-allowed disabled:opacity-50"
+            title="Pesquisar (período na API)"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M17.5 17.5L13.875 13.875M15.8333 9.16667C15.8333 12.8486 12.8486 15.8333 9.16667 15.8333C5.48477 15.8333 2.5 12.8486 2.5 9.16667C2.5 5.48477 5.48477 2.5 9.16667 2.5C12.8486 2.5 15.8333 5.48477 15.8333 9.16667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <a
+            routerLink="/lancamentos/cadastro"
+            class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600"
+            title="Novo lançamento"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M10 4.16669V15.8334M4.16669 10H15.8334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    @if (listaCarregando()) {
+      <p class="text-sm text-gray-500 dark:text-gray-400">Carregando lançamentos…</p>
+    }
+
+    <div
+      class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+      <div class="max-w-full overflow-x-auto">
+        <table class="min-w-full w-full">
+          <thead class="border-b border-gray-100 dark:border-white/[0.05]">
+            <tr>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Data</th>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Descrição</th>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Categoria</th>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Tipo</th>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Forma pag.</th>
+              <th class="text-theme-xs px-5 py-3 text-end font-medium text-gray-500 dark:text-gray-400">Valor</th>
+              <th class="text-theme-xs px-5 py-3 text-start font-medium text-gray-500 dark:text-gray-400">Pago</th>
+              <th class="text-theme-xs w-0 whitespace-nowrap px-5 py-3 pe-6 text-end font-medium text-gray-500 dark:text-gray-400" aria-label="Ações"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+            @if (listaCarregando() && paginatedRows().length === 0) {
+              <tr>
+                <td colspan="8" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  Carregando…
+                </td>
+              </tr>
+            } @else {
+              @for (row of paginatedRows(); track row.id) {
+                <tr>
+                  <td class="text-theme-sm whitespace-nowrap px-5 py-4 text-start text-gray-800 dark:text-white/90">
+                    {{ row.dataFormatada }}
+                  </td>
+                  <td class="text-theme-sm px-5 py-4 text-start text-gray-800 dark:text-white/90">
+                    {{ row.descricao }}
+                  </td>
+                  <td class="text-theme-sm px-4 py-3 text-start text-gray-800 dark:text-white/90">
+                    {{ row.categoriaNome }}
+                  </td>
+                  <td class="px-4 py-3 text-start">
+                    <app-badge size="sm" [color]="corTipo(row)">{{ row.tipoLabel }}</app-badge>
+                  </td>
+                  <td class="text-theme-sm px-4 py-3 text-start text-gray-600 dark:text-gray-400">
+                    {{ row.formaPagamentoNome }}
+                  </td>
+                  <td class="text-theme-sm px-4 py-3 text-end font-medium" [ngClass]="classeValor(row)">
+                    {{ formatarMoeda(row.valor) }}
+                  </td>
+                  <td class="px-4 py-3 text-start">
+                    @if (row.pago) {
+                      <app-badge size="sm" color="success">Sim</app-badge>
+                    } @else {
+                      <app-badge size="sm" color="light">Não</app-badge>
+                    }
+                  </td>
+                  <td class="w-0 whitespace-nowrap px-4 py-3 pe-6 text-end">
+                    <div class="flex items-center justify-end gap-2">
+                      <a
+                        [routerLink]="['/lancamentos/cadastro', row.id]"
+                        class="inline-flex size-9 items-center justify-center rounded-lg text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10"
+                        title="Editar"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path d="M10.368 3.265L3.787 9.845C3.528 10.105 3.275 10.617 3.22 10.973L2.893 13.328C2.778 14.093 3.298 14.605 4.058 14.483L6.408 14.105C6.763 14.045 7.268 13.783 7.528 13.518L14.108 6.938C15.048 5.998 15.488 4.918 14.108 3.538C12.733 2.163 11.653 2.603 10.368 3.265Z" stroke="currentColor" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                          <path d="M9.70312 4.33301C10.1531 6.35801 11.7981 8.00301 13.8281 8.45801" stroke="currentColor" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </a>
+                      <button
+                        type="button"
+                        (click)="confirmarExcluir(row)"
+                        [disabled]="excluindoId() === row.id"
+                        class="inline-flex size-9 items-center justify-center rounded-lg text-error-500 hover:bg-error-50 disabled:opacity-50 dark:hover:bg-error-500/10"
+                        title="Excluir"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <path d="M15.75 4.485H2.25M14.8333 4.485L14.0611 14.5747C14.0278 15.0881 13.5 15.5 12.8611 15.5H5.13889C4.5 15.5 3.97222 15.0881 3.93889 14.5747L3.16667 4.485M7.41667 8.25V12.25M10.5833 8.25V12.25M6.33333 4.485V2.75C6.33333 2.33579 6.66911 2 7.08333 2H10.9167C11.3309 2 11.6667 2.33579 11.6667 2.75V4.485" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="px-5 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                    @if (totalCadastro() === 0 && !listaErro()) {
+                      Nenhum lançamento cadastrado. Use + para adicionar.
+                    } @else {
+                      Nenhum registro encontrado com os filtros informados.
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      <div
+        class="flex flex-col gap-3 border-t border-gray-100 px-5 py-4 dark:border-white/[0.05] sm:flex-row sm:items-center sm:justify-between"
+      >
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+          @if (totalFiltrado() === 0) {
+            Nenhum registro para exibir.
+          } @else {
+            Mostrando
+            <span class="text-gray-800 dark:text-white/90">{{ startEntry() }}</span>
+            a
+            <span class="text-gray-800 dark:text-white/90">{{ endEntry() }}</span>
+            de
+            <span class="text-gray-800 dark:text-white/90">{{ totalFiltrado() }}</span>
+          }
+        </span>
+        <div class="flex w-full items-center justify-between gap-2 rounded-lg bg-gray-50 p-2 sm:w-auto sm:justify-normal sm:bg-transparent sm:p-0 dark:bg-white/[0.03] dark:sm:bg-transparent">
+          <button
+            type="button"
+            class="shadow-theme-xs inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 sm:p-2.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            [disabled]="currentPage() === 1 || totalFiltrado() === 0"
+            (click)="paginaAnterior()"
+            title="Página anterior"
+          >
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M2.58203 9.99868C2.58174 10.1909 2.6549 10.3833 2.80152 10.53L7.79818 15.5301C8.09097 15.8231 8.56584 15.8233 8.85883 15.5305C9.15183 15.2377 9.152 14.7629 8.85921 14.4699L5.13911 10.7472L16.6665 10.7472C17.0807 10.7472 17.4165 10.4114 17.4165 9.99715C17.4165 9.58294 17.0807 9.24715 16.6665 9.24715L5.14456 9.24715L8.85919 5.53016C9.15199 5.23717 9.15184 4.7623 8.85885 4.4695C8.56587 4.1767 8.09099 4.17685 7.79819 4.46984L2.84069 9.43049C2.68224 9.568 2.58203 9.77087 2.58203 9.99715C2.58203 9.99766 2.58203 9.99817 2.58203 9.99868Z" />
+            </svg>
+          </button>
+          <span class="text-sm font-medium text-gray-700 sm:hidden dark:text-gray-400">
+            Página {{ currentPage() }} de {{ totalPages() }}
+          </span>
+          <ul class="hidden items-center gap-0.5 sm:flex">
+            @for (page of visiblePages(); track page) {
+              <li>
+                <button
+                  type="button"
+                  (click)="irParaPagina(page)"
+                  class="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium"
+                  [class.bg-brand-500]="page === currentPage()"
+                  [class.text-white]="page === currentPage()"
+                  [class.text-gray-700]="page !== currentPage()"
+                  [class.hover:bg-brand-500]="page !== currentPage()"
+                  [class.hover:text-white]="page !== currentPage()"
+                  [class.dark:text-gray-400]="page !== currentPage()"
+                >
+                  {{ page }}
+                </button>
+              </li>
+            }
+          </ul>
+          <button
+            type="button"
+            class="shadow-theme-xs inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white p-2 text-gray-700 hover:bg-gray-50 hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-50 sm:p-2.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            [disabled]="currentPage() === totalPages() || totalFiltrado() === 0"
+            (click)="paginaProxima()"
+            title="Próxima página"
+          >
+            <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M17.4165 9.9986C17.4168 10.1909 17.3437 10.3832 17.197 10.53L12.2004 15.5301C11.9076 15.8231 11.4327 15.8233 11.1397 15.5305C10.8467 15.2377 10.8465 14.7629 11.1393 14.4699L14.8594 10.7472L3.33203 10.7472C2.91782 10.7472 2.58203 10.4114 2.58203 9.99715C2.58203 9.58294 2.91782 9.24715 3.33203 9.24715L14.854 9.24715L11.1393 5.53016C10.8465 5.23717 10.8467 4.7623 11.1397 4.4695C11.4327 4.1767 11.9075 4.17685 12.2003 4.46984L17.1578 9.43049C17.3163 9.568 17.4165 9.77087 17.4165 9.99715C17.4165 9.99763 17.4165 9.99812 17.4165 9.9986Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+      {{ displayedRows().length }} após filtro local — {{ totalCadastro() }} retornados pela API
+    </p>
+  </div>
+</div>

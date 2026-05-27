@@ -1,0 +1,79 @@
+<div class="relative min-h-screen w-full lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] xl:grid-cols-[minmax(0,4fr)_minmax(0,2fr)] 2xl:grid-cols-[minmax(0,5fr)_minmax(0,2fr)]">
+  <!-- Painel de marca (desktop) -->
+  <section
+    class="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between"
+    aria-hidden="false"
+  >
+    <img
+      src="/images/fundo.jpg"
+      alt=""
+      class="auth-panel-bg absolute inset-0 h-full w-full object-cover"
+      aria-hidden="true"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-brand-600/90 via-brand-700/85 to-gray-900/90"
+      aria-hidden="true"
+    ></div>
+    <div class="absolute -right-20 -top-20 size-80 rounded-full bg-white/10 blur-3xl" aria-hidden="true"></div>
+    <div class="absolute -bottom-24 -left-16 size-96 rounded-full bg-brand-400/20 blur-3xl" aria-hidden="true"></div>
+
+    <div class="relative z-10 flex flex-1 flex-col justify-center px-10 py-12 xl:px-16">
+      <h1 class="max-w-md text-3xl font-bold leading-tight tracking-tight text-white xl:text-4xl">
+        Logística inteligente para sua operação
+      </h1>
+      <p class="mt-4 max-w-sm text-base leading-relaxed text-white/80">
+        Controle volumes, rotas e divergências em um único painel — simples, rápido e confiável.
+      </p>
+      <ul class="mt-10 space-y-4">
+        <li class="flex items-center gap-3 text-sm text-white/90">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          Conferência de volumes em tempo real
+        </li>
+        <li class="flex items-center gap-3 text-sm text-white/90">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          Rastreamento de divergências e rotas
+        </li>
+        <li class="flex items-center gap-3 text-sm text-white/90">
+          <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+            <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          Acesso seguro e controle por perfil
+        </li>
+      </ul>
+    </div>
+
+    <p class="relative z-10 px-10 pb-8 text-xs text-white/50 xl:px-16">
+      © {{ currentYear }} Felipe Cunha
+    </p>
+  </section>
+
+  <!-- Painel do formulário -->
+  <section class="relative flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+    <div class="absolute inset-0 lg:hidden" aria-hidden="true">
+      <img src="/images/fundo.jpg" alt="" class="h-full w-full object-cover opacity-30 dark:opacity-20" />
+      <div class="absolute inset-0 bg-gray-50/95 dark:bg-gray-950/95"></div>
+    </div>
+
+    <div
+      class="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-10 sm:px-8 lg:items-end lg:justify-center lg:pl-10 lg:pr-14 xl:pl-16 xl:pr-20 2xl:pr-28"
+    >
+      <div class="w-full max-w-[420px] lg:mr-0">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </section>
+
+  <div class="fixed bottom-5 right-5 z-50 lg:bottom-6 lg:right-6">
+    <app-theme-toggle-two />
+  </div>
+</div>

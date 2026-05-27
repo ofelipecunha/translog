@@ -1,0 +1,16 @@
+<div class="mx-auto max-w-7xl rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+  @if (listaCarregando) {
+    <p class="px-5 pt-4 text-sm text-gray-500 dark:text-gray-400">Carregando eventos…</p>
+  }
+  <div class="custom-calendar overflow-hidden">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <app-calendario-evento-modals
+    #eventoModals
+    (eventosAlterados)="onEventosAlterados($event)"
+    (carregandoAlterado)="listaCarregando = $event"
+  />
+
+  <app-calendario-extrato-dia-modal #extratoDiaModal />
+</div>

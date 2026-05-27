@@ -1,0 +1,28 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SidebarService {
+  private isExpandedSubject = new BehaviorSubject<boolean>(false);
+  private isMobileOpenSubject = new BehaviorSubject<boolean>(false);
+  isExpanded$ = this.isExpandedSubject.asObservable();
+  isMobileOpen$ = this.isMobileOpenSubject.asObservable();
+
+  setExpanded(val: boolean) {
+    this.isExpandedSubject.next(val);
+  }
+
+  toggleExpanded() {
+    this.isExpandedSubject.next(!this.isExpandedSubject.value);
+  }
+
+  setMobileOpen(val: boolean) {
+    this.isMobileOpenSubject.next(val);
+  }
+
+  toggleMobileOpen() {
+    this.isMobileOpenSubject.next(!this.isMobileOpenSubject.value);
+  }
+}
