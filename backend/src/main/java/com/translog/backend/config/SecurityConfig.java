@@ -20,8 +20,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Value("${app.cors.allowed-origins:http://localhost:4200}")
-	private String allowedOrigins;
+	@Value("${app.cors.allowed-origin-patterns:http://localhost:4200}")
+	private String allowedOriginPatterns;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,11 +37,11 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		List<String> origins = Arrays.stream(allowedOrigins.split(","))
+		List<String> patterns = Arrays.stream(allowedOriginPatterns.split(","))
 				.map(String::trim)
 				.filter(s -> !s.isEmpty())
 				.toList();
-		configuration.setAllowedOrigins(origins);
+		configuration.setAllowedOriginPatterns(patterns);
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);

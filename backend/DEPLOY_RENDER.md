@@ -100,7 +100,7 @@ No Web Service → **Environment** → adicione:
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://SEU-HOST:5432/translog_db_ibdf` |
 | `SPRING_DATASOURCE_USERNAME` | `translog_db_ibdf_user` |
 | `SPRING_DATASOURCE_PASSWORD` | senha do painel Connections (não é `123`) |
-| `APP_CORS_ALLOWED_ORIGINS` | `https://translog-orpin.vercel.app,https://translog-git-main-felipe-cunha-s-projects.vercel.app,http://localhost:4200` |
+| `APP_CORS_ALLOWED_ORIGIN_PATTERNS` | `http://localhost:4200,https://*.vercel.app` (aceita preview e produção na Vercel) |
 | `APP_SEED_ENABLED` | `true` (só na primeira vez; depois pode `false`) |
 | `JAVA_VERSION` | `17` |
 
@@ -154,7 +154,7 @@ const apiUrl = 'https://translog-d9q1.onrender.com'; // copie a URL em Settings 
 | Sintoma | Solução |
 |---------|---------|
 | `mvn: command not found` + log **Using Node.js** | O Render criou o serviço como **Node** (há `package.json` na raiz). **Solução recomendada:** **Settings → Runtime → Docker**, **Root Directory → `backend`**, **Dockerfile Path → `Dockerfile`**. Apague **Build Command** e **Start Command** (o Docker cuida disso). **Manual Deploy**. Alternativa: criar novo Web Service com runtime **Java**. |
-| CORS no login | Confira `APP_CORS_ALLOWED_ORIGINS` com a URL exata da Vercel (com `https://`) |
+| CORS no login | Inclua a URL exata da Vercel em `APP_CORS_ALLOWED_ORIGINS` **ou** use `APP_CORS_ALLOWED_ORIGIN_PATTERNS=https://*.vercel.app` |
 | 502 / timeout no Render | Plano free “acorda” devagar; espere e tente de novo |
 | Erro de banco / Flyway | Confira JDBC URL, usuário e senha; Postgres precisa estar **Available** |
 | Frontend chama `localhost` | Build de produção deve usar `environment.prod.ts` (já configurado no `angular.json`) |
