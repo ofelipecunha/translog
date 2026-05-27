@@ -1,10 +1,14 @@
 package com.translog.backend.controller;
 
+import com.translog.backend.auditoria.AuditoriaInterceptor;
 import com.translog.backend.dto.LoginRequest;
 import com.translog.backend.dto.LoginResponse;
 import com.translog.backend.dto.PerfilUsuarioResponse;
 import com.translog.backend.dto.PerfilUsuarioUpdateRequest;
+import com.translog.backend.repository.UsuarioRepository;
 import com.translog.backend.service.AuthService;
+import com.translog.backend.service.LogAuditoriaService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthController {
 
 	private final AuthService authService;
+	private final LogAuditoriaService logAuditoriaService;
+	private final UsuarioRepository usuarioRepository;
 
 	@GetMapping
 	public Map<String, Object> infoAuth() {
@@ -57,16 +63,34 @@ public class AuthController {
 	@GetMapping("/login")
 	public ResponseEntity<LoginResponse> loginGet(
 			@RequestParam String email,
-			@RequestParam String senha) {
+			@RequestParam String senha,
+			HttpServletRequest request) {
 		if (email.isBlank() || senha.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe email e senha");
 		}
-		return ResponseEntity.ok(authService.login(new LoginRequest(email.trim(), senha)));
+		LoginResponse resposta = authService.login(new LoginRequest(email.trim(), senha));
+		registrarLogin(resposta, request);
+		return ResponseEntity.ok(resposta);
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest body) {
-		return ResponseEntity.ok(authService.login(body));
+	public ResponseEntity<LoginResponse> login(
+			@Valid @RequestBody LoginRequest body, HttpServletRequest request) {
+		LoginResponse resposta = authService.login(body);
+		registrarLogin(resposta, request);
+		return ResponseEntity.ok(resposta);
+	}
+
+	private void registrarLogin(LoginResponse resposta, HttpServletRequest request) {
+		usuarioRepository
+				.findById(resposta.getIdLogin())
+				.ifPresent(
+						u -> logAuditoriaService.registrar(
+								u,
+								"POST",
+								"/api/auth/login",
+								"Login no sistema",
+								AuditoriaInterceptor.extrairIp(request)));
 	}
 
 	@GetMapping("/me")
