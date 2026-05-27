@@ -25,6 +25,8 @@ import { PainelDivergenciaPageComponent } from './pages/operacoes/painel-diverge
 import { EmpresasPageComponent } from './pages/empresas/empresas-page.component';
 import { ControleAcessoPageComponent } from './pages/sistema/controle-acesso/controle-acesso-page.component';
 
+const APP_PAGE_TITLE = 'Translog Transportadora';
+
 export const routes: Routes = [
   {
     path: '',
@@ -35,97 +37,97 @@ export const routes: Routes = [
         path: '',
         component: TransportadoraDashboardComponent,
         pathMatch: 'full',
-        title: 'Dashboard | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'fretes',
         component: FretesPageComponent,
-        title: 'Fretes | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'veiculos',
         component: VeiculosPageComponent,
-        title: 'Veículos | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'motoristas',
         component: MotoristasPageComponent,
-        title: 'Motoristas | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'clientes',
         component: ClientesPageComponent,
-        title: 'Clientes | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'rotas',
         component: RotasPageComponent,
-        title: 'Rotas | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'calendar',
         component: CalenderComponent,
-        title: 'Calendário | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'operacoes/emissao-etiquetas',
         component: EmissaoEtiquetasPageComponent,
-        title: 'Emissão de ET. | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'operacoes/conferencia-volumes',
         component: ConferenciaVolumesPageComponent,
-        title: 'Conferência de Vol. | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'operacoes/carga-descarga',
         component: CargaDescargaPageComponent,
-        title: 'Carga e Descarga | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'operacoes/rota',
         component: RotaPageComponent,
-        title: 'Rota | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'operacoes/painel-divergencia',
         component: PainelDivergenciaPageComponent,
-        title: 'Painel de Divergência | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'profile',
         component: ProfileComponent,
-        title: 'Perfil | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'usuarios',
         component: UsuariosPageComponent,
-        title: 'Usuários | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'empresas',
         component: EmpresasPageComponent,
-        title: 'Empresas | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'sistema/controle-acesso',
         component: ControleAcessoPageComponent,
-        title: 'Controle de Acesso | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'basic-tables',
         component: BasicTablesComponent,
-        title: 'Tabelas | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'line-chart',
         component: LineChartComponent,
-        title: 'Gráfico de linha | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
       {
         path: 'bar-chart',
         component: BarChartComponent,
-        title: 'Gráfico de barras | TransLog Transportadora',
+        title: APP_PAGE_TITLE,
       },
     ],
   },
@@ -133,17 +135,17 @@ export const routes: Routes = [
     path: 'signin',
     component: SignInComponent,
     canActivate: [guestGuard],
-    title: 'Entrar | TransLog Transportadora',
+    title: APP_PAGE_TITLE,
   },
   {
     path: 'signup',
     component: SignUpComponent,
     canActivate: [guestGuard],
-    title: 'Cadastro | TransLog Transportadora',
+    title: APP_PAGE_TITLE,
   },
   {
     path: '**',
     component: NotFoundComponent,
-    title: 'Página não encontrada | TransLog Transportadora',
+    title: APP_PAGE_TITLE,
   },
 ];

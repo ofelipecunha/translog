@@ -7,7 +7,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { InputFieldComponent } from './../../form/input/input-field.component';
 import { ModalService } from '../../../services/modal.service';
@@ -149,7 +149,10 @@ export class UserMetaCardComponent {
     this.avatarUploadError.set(null);
     this.profile
       .uploadAvatar(file)
-      .pipe(finalize(() => this.avatarUploading.set(false)))
+      .pipe(
+        switchMap(() => this.profile.refreshProfile()),
+        finalize(() => this.avatarUploading.set(false)),
+      )
       .subscribe({
         next: () => {
           this.revokeIfBlob(this.modalPreviewUrl());

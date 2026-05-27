@@ -1,5 +1,8 @@
-import { Component, Input, computed } from '@angular/core';
-import { resolveAvatarUrl } from '../../../../core/user/user-session-profile.service';
+import { Component, computed, inject, input } from '@angular/core';
+import {
+  UserSessionProfileService,
+  resolveAvatarUrl,
+} from '../../../../core/user/user-session-profile.service';
 
 @Component({
   selector: 'app-user-avatar',
@@ -7,7 +10,7 @@ import { resolveAvatarUrl } from '../../../../core/user/user-session-profile.ser
   template: `
     <span
       class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full"
-      [class]="sizeClass"
+      [class]="sizeClass()"
     >
       @if (hasPhoto()) {
         <img [src]="photoUrl()" alt="" class="h-full w-full object-cover" />
@@ -36,10 +39,20 @@ import { resolveAvatarUrl } from '../../../../core/user/user-session-profile.ser
   `,
 })
 export class UserAvatarComponent {
-  @Input() imagem?: string | null;
-  @Input() sizeClass = 'h-11 w-11';
+  private readonly sessionProfile = inject(UserSessionProfileService);
 
-  readonly hasPhoto = computed(() => !!this.imagem?.trim());
+  readonly imagem = input<string | null | undefined>(null);
+  readonly sizeClass = input('h-11 w-11');
 
-  readonly photoUrl = computed(() => resolveAvatarUrl(this.imagem));
+  readonly hasPhoto = computed(() => {
+    const path = this.imagem() ?? this.sessionProfile.profile()?.imagem;
+    return !!path?.trim();
+  });
+
+  readonly photoUrl = computed(() =>
+    resolveAvatarUrl(
+      this.imagem() ?? this.sessionProfile.profile()?.imagem,
+      this.sessionProfile.avatarCacheBust(),
+    ),
+  );
 }
